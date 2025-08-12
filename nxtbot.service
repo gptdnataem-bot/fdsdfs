@@ -1,0 +1,14 @@
+[Unit]
+Description=NXT Esports Telegram Bot
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/mnt/data/nxt_esports_bot_keepalive_status
+ExecStart=/usr/bin/python3 /mnt/data/nxt_esports_bot_keepalive_status/bot.py
+Restart=always
+RestartSec=5
+# Environment is read by python-dotenv from .env in WorkingDirectory
+
+[Install]
+WantedBy=multi-user.target

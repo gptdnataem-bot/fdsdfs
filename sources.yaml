@@ -1,0 +1,33 @@
+games:
+  cs2:
+    rss:
+    - https://www.hltv.org/rss/news
+    - https://www.hltv.org/rss/matches
+    - https://www.cybersport.ru/feeds/news/cs-go
+    youtube_channels:
+    - UCvOK6wO3n6U5rOJB8Gm7S1A
+    - UCcQTRi69dsVYHN3exePtZ1A
+    - UCNJvzQg2h3mmzQmH_kvGd5g
+  dota2:
+    rss:
+    - https://www.cybersport.ru/feeds/news/dota-2
+    - https://liquipedia.net/dota2/Blog:News?feed=rss
+    youtube_channels:
+    - UCaFMdq6K5N1hGz7aZP-2o8Q
+    - UCNJvzQg2h3mmzQmH_kvGd5g
+filters:
+  highlight_keywords:
+  - highlight
+  - highlights
+  - best moments
+  - clutch
+  - ace
+  - 1v
+  - frag
+  - peacekeeper
+  - montage
+  - моменты
+  - лучшие
+  - хайлайт
+  - эс
+  - клатч
