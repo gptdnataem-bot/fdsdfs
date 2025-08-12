@@ -6,41 +6,40 @@ def load_config(path: str="sources.yaml") -> dict:
         return yaml.safe_load(f)
 
 def _extract_thumb(entry) -> Optional[str]:
-    # Standard media fields
+    # Try standard media:thumbnail / media:content
     if hasattr(entry, 'media_thumbnail') and entry.media_thumbnail:
-        url = entry.media_thumbnail[0].get('url')
-        if url: return url
+        return entry.media_thumbnail[0].get('url')
     if hasattr(entry, 'media_content') and entry.media_content:
-        url = entry.media_content[0].get('url')
-        if url: return url
-    # Enclosure
+        return entry.media_content[0].get('url')
+    # enclosure link
     for l in getattr(entry, 'links', []):
-        if l.get('rel') == 'enclosure' and str(l.get('type','')).startswith('image/'):
+        if l.get('rel') == 'enclosure' and l.get('type', '').startswith('image/'):
             return l.get('href')
-    # <img> inside summary html
-    summary = getattr(entry, 'summary', '') or ''
-    if '<img' in summary:
-        try:
-            import re as _re
-            m = _re.search(r'<img[^>]+src=["\']([^"\']+)["\']', summary, _re.I)
-            if m: return m.group(1)
-        except Exception:
-            pass
-    # YouTube id -> thumbnail
-    link = getattr(entry, 'link', '') or getattr(entry, 'id', '')
-    vid = None
-    if 'youtube.com/watch?v=' in link:
-        import urllib.parse as up
-        vid = dict(up.parse_qsl(up.urlparse(link).query)).get('v')
-    elif 'youtu.be/' in link:
-        vid = link.split('youtu.be/')[-1].split('?')[0]
-    if vid:
-        # try maxres; falls back to hq in Telegram anyway
-        return f'https://i.ytimg.com/vi/{vid}/maxresdefault.jpg'
+    # youtube thumbnail
+    if hasattr(entry, 'id') and 'youtube.com' in entry.id:
+        # YouTube often has media_thumbnail too, but fallback to HQ default pattern by video id
+        vid = entry.id.split(':')[-1]
+        return f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"
+    # generic
     return None
 
+def parse_rss(url: str) -> List[Dict]:
+    d = feedparser.parse(url)
+    items = []
+    for e in d.entries:
+        title = getattr(e, "title", "")
+        link = getattr(e, "link", "")
+        summary = getattr(e, "summary", getattr(e, "description", ""))
+        thumb = _extract_thumb(e)
+        items.append({
+            "title": title,
+            "url": link,
+            "summary": summary,
+            "image_url": thumb
+        })
+    return items
+
 def youtube_channel_feed(channel_id: str) -> str:
-(channel_id: str) -> str:
     return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
 def filter_highlights(items: List[Dict], keywords: List[str]) -> List[Dict]:
