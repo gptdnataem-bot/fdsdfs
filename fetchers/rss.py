@@ -43,5 +43,14 @@ def youtube_channel_feed(channel_id: str) -> str:
     return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
 def filter_highlights(items: List[Dict], keywords: List[str]) -> List[Dict]:
-    patt = re.compile("|".join(re.escape(k) for k in keywords), re.IGNORECASE)
-    return [it for it in items if patt.search(it["title"])]
+    base = [re.escape(k) for k in keywords]
+    extra = [r"\b[1-5]k\b", r"\b1v[1-5]\b", r"\bace\b", r"\bclutch\b",
+             r"\brampage\b", r"\bultrakill\b", r"\bmonster kill\b",
+             r"хайлайт", r"моменты", r"клатч", r"эйс", r"рампейдж", r"ультракилл"]
+    patt = re.compile("|".join(base + extra), re.IGNORECASE)
+    out = []
+    for it in items:
+        t = it.get("title",""); s = it.get("summary","")
+        if patt.search(t) or patt.search(s):
+            out.append(it)
+    return out
